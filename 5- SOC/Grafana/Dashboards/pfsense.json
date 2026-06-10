@@ -1,0 +1,712 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "grafana",
+            "uid": "-- Grafana --"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "description": "pfSense — Auth, Config Changes, and Connections",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "links": [],
+    "panels": [
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 100,
+        "panels": [],
+        "title": "📊 Quick Stats",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "blue",
+                  "value": 0
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 0,
+          "y": 1
+        },
+        "id": 1,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "sum(count_over_time({job=\"pfsense\"} |= \"sshd\" |= \"Accepted\" [1h]))",
+            "refId": "A"
+          }
+        ],
+        "title": "🔑 SSH Logins (1h)",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 4,
+          "y": 1
+        },
+        "id": 2,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "sum(count_over_time({job=\"pfsense\"} |= \"sshd\" |~ \"Failed|Invalid\" [1h]))",
+            "refId": "A"
+          }
+        ],
+        "title": "🚨 Failed Logins (1h)",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 8,
+          "y": 1
+        },
+        "id": 3,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "sum(count_over_time({job=\"pfsense\"} |= \"php\" |~ \"Configuration Change|login|authentication error\" [1h]))",
+            "refId": "A"
+          }
+        ],
+        "title": "⚙️ Config Changes (1h)",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 100
+                },
+                {
+                  "color": "red",
+                  "value": 1000
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 12,
+          "y": 1
+        },
+        "id": 4,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "sum(count_over_time({job=\"pfsense_firewall\"}[1h]))",
+            "refId": "A"
+          }
+        ],
+        "title": "🔥 FW Connections (1h)",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 1
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 16,
+          "y": 1
+        },
+        "id": 5,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "sum(count_over_time({job=\"pfsense_firewall\"} |= \"block\" [1h]))",
+            "refId": "A"
+          }
+        ],
+        "title": "🚫 Blocked (1h)",
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "blue",
+                  "value": 0
+                }
+              ]
+            },
+            "unit": "short"
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 20,
+          "y": 1
+        },
+        "id": 6,
+        "options": {
+          "colorMode": "background",
+          "graphMode": "none",
+          "justifyMode": "center",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "sum(count_over_time({job=\"pfsense\"} |= \"sudo\" [1h]))",
+            "refId": "A"
+          }
+        ],
+        "title": "⚡ Sudo Commands (1h)",
+        "type": "stat"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 5
+        },
+        "id": 101,
+        "panels": [],
+        "title": "🔑 Authentication",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 6
+        },
+        "id": 10,
+        "options": {
+          "dedupStrategy": "none",
+          "enableInfiniteScrolling": false,
+          "enableLogDetails": true,
+          "showControls": false,
+          "showLabels": false,
+          "showTime": true,
+          "sortOrder": "Descending",
+          "unwrappedColumns": false,
+          "wrapLogMessage": false
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "{job=\"pfsense\"} |= \"sshd\" |~ \"Accepted|Failed|Invalid\"\n| regexp `sshd\\[\\d+\\]: (?P<result>Accepted|Failed password|Invalid user) (?P<method>\\S+) for (?P<user>\\S+) from (?P<src_ip>\\S+) port (?P<port>\\d+)`\n| line_format \"{{ if eq .result \\\"Accepted\\\" }}✅{{ else }}❌{{ end }} {{.result | upper}} | User: {{.user}} | From: {{.src_ip}}:{{.port}} | Method: {{.method}}\"",
+            "queryType": "range",
+            "refId": "A"
+          }
+        ],
+        "title": "🔑 SSH Authentication Events",
+        "type": "logs"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 24,
+          "x": 0,
+          "y": 16
+        },
+        "id": 11,
+        "options": {
+          "dedupStrategy": "none",
+          "enableInfiniteScrolling": false,
+          "enableLogDetails": true,
+          "showControls": false,
+          "showLabels": false,
+          "showTime": true,
+          "sortOrder": "Descending",
+          "unwrappedColumns": false,
+          "wrapLogMessage": false
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "{job=\"pfsense\"} |= \"sudo\" |= \"COMMAND\"\n| regexp `sudo\\[\\d+\\]: (?P<user>\\S+)\\s+:.*?USER=(?P<runas>\\S+)\\s*;\\s*COMMAND=(?P<command>.+)`\n| line_format \"⚡ {{.user}} → ran as {{.runas}} | CMD: {{.command}}\"",
+            "refId": "A"
+          }
+        ],
+        "title": "⚡ Sudo Commands Executed",
+        "type": "logs"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 24
+        },
+        "id": 102,
+        "panels": [],
+        "title": "⚙️ Config Changes & GUI Events",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 25
+        },
+        "id": 20,
+        "options": {
+          "dedupStrategy": "none",
+          "enableInfiniteScrolling": false,
+          "enableLogDetails": true,
+          "showControls": false,
+          "showLabels": false,
+          "showTime": true,
+          "sortOrder": "Descending",
+          "unwrappedColumns": false,
+          "wrapLogMessage": true
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "{job=\"pfsense\"} |= \"php\"\n| regexp `php-fpm\\[\\d+\\]: (?:(?P<script>[^:]+): )?(?P<message>.+)`\n| regexp `(?:for user '(?P<user>[^']+)'.*from:\\s+(?P<src_ip>[\\d.]+)|(?P<user2>[^@\\s]+)@(?P<src_ip2>[\\d.]+))`\n| line_format \"⚙️ [{{.script}}] | User: {{if .user}}{{.user}}{{else}}{{.user2}}{{end}} | IP: {{if .src_ip}}{{.src_ip}}{{else}}{{.src_ip2}}{{end}} | {{.message}}\"",
+            "refId": "A"
+          }
+        ],
+        "title": "⚙️ GUI Logins, Config Changes & Auth Events",
+        "type": "logs"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 35
+        },
+        "id": 103,
+        "panels": [],
+        "title": "🔥 Firewall Connections",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 14,
+          "w": 24,
+          "x": 0,
+          "y": 36
+        },
+        "id": 30,
+        "options": {
+          "dedupStrategy": "none",
+          "enableInfiniteScrolling": false,
+          "enableLogDetails": true,
+          "showControls": false,
+          "showLabels": false,
+          "showTime": true,
+          "sortOrder": "Descending",
+          "unwrappedColumns": false,
+          "wrapLogMessage": false
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "{job=\"pfsense_firewall\"}\n| regexp `filterlog\\[\\d+\\]: [^,]*,[^,]*,[^,]*,[^,]*,(?P<iface>[^,]*),(?P<reason>[^,]*),(?P<action>[^,]*),(?P<dir>[^,]*),(?P<ipver>[^,]*),(?P<tos>[^,]*),(?P<ttl>[^,]*),(?P<id>[^,]*),(?P<offset>[^,]*),(?P<flags>[^,]*),(?P<protoid>[^,]*),(?P<proto>[^,]*),(?P<length>[^,]*),(?P<src>[^,]*),(?P<dst>[^,]*)(?:,(?P<srcport>[^,]*)(?:,(?P<dstport>[^,]*))?)?`\n| line_format \"{{ if eq .action \\\"block\\\" }}🚫{{ else }}✅{{ end }} {{.action | upper}} | {{ if eq .dir \\\"in\\\" }}⬇ IN{{ else }}⬆ OUT{{ end }} | {{.iface}} | {{.proto}} | {{.src}}{{ if .srcport }}:{{.srcport}}{{ end }} → {{.dst}}{{ if .dstport }}:{{.dstport}}{{ end }}\"",
+            "refId": "A"
+          }
+        ],
+        "title": "🔥 All Firewall Connections",
+        "type": "logs"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "${DS_LOKI}"
+        },
+        "fieldConfig": {
+          "defaults": {},
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 12,
+          "w": 24,
+          "x": 0,
+          "y": 50
+        },
+        "id": 31,
+        "options": {
+          "dedupStrategy": "none",
+          "enableInfiniteScrolling": false,
+          "enableLogDetails": true,
+          "showControls": false,
+          "showLabels": false,
+          "showTime": true,
+          "sortOrder": "Descending",
+          "unwrappedColumns": false,
+          "wrapLogMessage": false
+        },
+        "pluginVersion": "12.4.0",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "${DS_LOKI}"
+            },
+            "expr": "{job=\"pfsense_firewall\"} |= \"block\"\n| regexp `filterlog\\[\\d+\\]: [^,]*,[^,]*,[^,]*,[^,]*,(?P<iface>[^,]*),(?P<reason>[^,]*),(?P<action>[^,]*),(?P<dir>[^,]*),(?P<ipver>[^,]*),(?P<tos>[^,]*),(?P<ttl>[^,]*),(?P<id>[^,]*),(?P<offset>[^,]*),(?P<flags>[^,]*),(?P<protoid>[^,]*),(?P<proto>[^,]*),(?P<length>[^,]*),(?P<src>[^,]*),(?P<dst>[^,]*)(?:,(?P<srcport>[^,]*)(?:,(?P<dstport>[^,]*))?)?`\n| line_format \"🚫 BLOCK | {{ if eq .dir \\\"in\\\" }}⬇ IN{{ else }}⬆ OUT{{ end }} | {{.iface}} | {{.proto}} | {{.src}}{{ if .srcport }}:{{.srcport}}{{ end }} → {{.dst}}{{ if .dstport }}:{{.dstport}}{{ end }}\"",
+            "refId": "A"
+          }
+        ],
+        "title": "🚫 Blocked Connections Only",
+        "type": "logs"
+      }
+    ],
+    "preload": false,
+    "refresh": "30s",
+    "schemaVersion": 42,
+    "tags": [
+      "pfsense",
+      "security",
+      "auth",
+      "firewall"
+    ],
+    "templating": {
+      "list": [
+        {
+          "current": {
+            "text": "Loki",
+            "value": "P8E80F9AEF21F6940"
+          },
+          "label": "Loki Datasource",
+          "name": "DS_LOKI",
+          "options": [],
+          "query": "loki",
+          "refresh": 1,
+          "type": "datasource"
+        }
+      ]
+    },
+    "time": {
+      "from": "now-2d",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "pfSense — Security & Connections2",
+    "uid": "pfsense-security-v5",
+    "version": 2,
+    "weekStart": ""
+  }
