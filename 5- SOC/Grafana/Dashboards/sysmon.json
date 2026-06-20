@@ -1,0 +1,1057 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "grafana",
+            "uid": "-- Grafana --"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "links": [],
+    "panels": [
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "P8E80F9AEF21F6940"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "showValues": false,
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "id": 8,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.4.1",
+        "targets": [
+          {
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "sum(count_over_time({job=\"syslog\"} |~ \"systemd\\\\[1\\\\]:\" |~ \"Finished\" [1m]))",
+            "legendFormat": "Services",
+            "queryType": "range",
+            "refId": "Services",
+            "step": "5s"
+          },
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "sum(count_over_time({job=\"syslog\"} |~ \"<EventID>1</EventID>\" |~ `<Data Name=\"User\">root</Data>` [1m]))",
+            "legendFormat": "Commands",
+            "queryType": "range",
+            "refId": "Commands",
+            "step": "1m"
+          },
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "sum(count_over_time({job=\"syslog\"} |~ \"EventID>3</EventID\" | regexp `<Data Name=\"DestinationIp\">(?P<ip>[^<]+)</Data>` | ip != \"-\" [1m]))",
+            "legendFormat": "Networks",
+            "queryType": "range",
+            "refId": "Networks"
+          }
+        ],
+        "title": "Timing Correlation",
+        "type": "timeseries"
+      },
+      {
+        "collapsed": false,
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 5
+        },
+        "id": 2,
+        "panels": [],
+        "title": "Network & Processes",
+        "type": "row"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "P8E80F9AEF21F6940"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              }
+            },
+            "mappings": []
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "labels"
+              },
+              "properties": []
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 12,
+          "w": 4,
+          "x": 0,
+          "y": 6
+        },
+        "id": 1,
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "pieType": "pie",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "sort": "asc",
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "# happy cow",
+            "queryType": "range",
+            "refId": "A"
+          }
+        ],
+        "title": "Destination IPs",
+        "type": "piechart"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "P8E80F9AEF21F6940"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              }
+            },
+            "mappings": []
+          },
+          "overrides": [
+            {
+              "__systemRef": "hideSeriesFrom",
+              "matcher": {
+                "id": "byNames",
+                "options": {
+                  "mode": "exclude",
+                  "names": [
+                    "{service=\"arp-monitor.service\"}",
+                    "{service=\"cgroup-monitor.service\"}",
+                    "{service=\"clock-sync-daemon.service\"}",
+                    "{service=\"debugfs-helper.service\"}",
+                    "{service=\"entropy-daemon.service\"}",
+                    "{service=\"flow-monitor.service\"}",
+                    "{service=\"fwupd-refresh.service\"}",
+                    "{service=\"inode-cleaner.service\"}",
+                    "{service=\"ipv6-monitor.service\"}",
+                    "{service=\"latency-logger.service\"}",
+                    "{service=\"lib-update-daemon.service\"}",
+                    "{service=\"network-optimizer.service\"}",
+                    "{service=\"perf-counter.service\"}",
+                    "{service=\"scheduler-tuner.service\"}",
+                    "{service=\"selinux-context.service\"}",
+                    "{service=\"sys-cache-refresh.service\"}",
+                    "{service=\"sysctl-tuner.service\"}",
+                    "{service=\"sysstat-collect.service\"}",
+                    "{service=\"system-maint-daemon.service\"}",
+                    "{service=\"timer-list.service\"}",
+                    "{service=\"tracepoint-logger.service\"}",
+                    "{service=\"uprobe-handler.service\"}",
+                    "{service=\"workqueue-daemon.service\"}"
+                  ],
+                  "prefix": "All except:",
+                  "readOnly": true
+                }
+              },
+              "properties": [
+                {
+                  "id": "custom.hideFrom",
+                  "value": {
+                    "legend": false,
+                    "tooltip": true,
+                    "viz": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 12,
+          "w": 4,
+          "x": 4,
+          "y": 6
+        },
+        "id": 6,
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "pieType": "pie",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "sort": "desc",
+          "tooltip": {
+            "hideZeros": false,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "sum by (service) (count_over_time({job=\"syslog\"} |~ \"systemd\\\\[1\\\\]:\" |~ \"Starting\"\n| regexp `Starting (?P<service>[^ ]+) -` [5m]))",
+            "queryType": "range",
+            "refId": "A"
+          }
+        ],
+        "title": "Service Counts",
+        "type": "piechart"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "P8E80F9AEF21F6940"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "continuous-GrYlRd"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 12,
+          "w": 16,
+          "x": 8,
+          "y": 6
+        },
+        "id": 5,
+        "options": {
+          "displayMode": "gradient",
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": false
+          },
+          "maxVizHeight": 300,
+          "minVizHeight": 16,
+          "minVizWidth": 8,
+          "namePlacement": "auto",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "last"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": false,
+          "sizing": "auto",
+          "valueMode": "color"
+        },
+        "pluginVersion": "12.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "sum by (image) (count_over_time({job=\"sysmon\"} |~ \"<Provider Name=\\\"Linux-Sysmon\\\"\" |~ \"<EventID>1</EventID>\"\n| regexp `<Data Name=\"Image\">(?P<image>[^<]+)</Data>` [5m]))",
+            "queryType": "range",
+            "refId": "A"
+          }
+        ],
+        "title": "Binaries Accessed",
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "P8E80F9AEF21F6940"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "filterable": true,
+              "footer": {
+                "reducers": []
+              },
+              "hideFrom": {
+                "viz": false
+              },
+              "inspect": false,
+              "wrapHeaderText": true,
+              "wrapText": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "pid"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 90
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Time"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 166
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "comm"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 168
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 13,
+          "w": 11,
+          "x": 0,
+          "y": 18
+        },
+        "id": 9,
+        "options": {
+          "cellHeight": "sm",
+          "enablePagination": true,
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": false,
+              "displayName": "labelTypes"
+            }
+          ]
+        },
+        "pluginVersion": "12.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "{job=\"cgroup\"} |= ``",
+            "queryType": "range",
+            "refId": "A"
+          }
+        ],
+        "title": "Services",
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "id": true,
+                "labelTypes": true,
+                "labels": false,
+                "tsNs": true
+              },
+              "includeByName": {},
+              "indexByName": {},
+              "orderByMode": "auto",
+              "renameByName": {}
+            }
+          },
+          {
+            "id": "extractFields",
+            "options": {
+              "delimiter": ",",
+              "source": "labels"
+            }
+          },
+          {
+            "id": "extractFields",
+            "options": {
+              "delimiter": ",",
+              "source": "Line"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Line": true,
+                "detected_level": true,
+                "filename": true,
+                "job": true,
+                "labels": true,
+                "service_name": true,
+                "ts": true
+              },
+              "includeByName": {},
+              "indexByName": {
+                "Line": 6,
+                "Time": 0,
+                "cgroup": 3,
+                "comm": 2,
+                "detected_level": 7,
+                "filename": 8,
+                "host": 4,
+                "job": 9,
+                "labels": 5,
+                "pid": 1,
+                "service_name": 10,
+                "ts": 11
+              },
+              "renameByName": {}
+            }
+          }
+        ],
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "P8E80F9AEF21F6940"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "filterable": true,
+              "footer": {
+                "reducers": []
+              },
+              "hideFrom": {
+                "viz": false
+              },
+              "inspect": false,
+              "wrapHeaderText": true,
+              "wrapText": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 13,
+          "w": 13,
+          "x": 11,
+          "y": 18
+        },
+        "id": 10,
+        "options": {
+          "cellHeight": "sm",
+          "enablePagination": true,
+          "showHeader": true
+        },
+        "pluginVersion": "12.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "{job=\"syslog\"} |~ \"CRON\\\\[\" |~ \"CMD\"\n| regexp `CRON\\[(?P<pid>\\d+)\\]: \\((?P<user>[^)]+)\\) CMD \\((?P<command>.+)\\)$`",
+            "queryType": "range",
+            "refId": "A"
+          }
+        ],
+        "title": "CRON Jobs",
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Line": true,
+                "id": true,
+                "tsNs": true
+              },
+              "includeByName": {},
+              "indexByName": {
+                "Line": 2,
+                "Time": 0,
+                "id": 4,
+                "labels": 1,
+                "tsNs": 3
+              },
+              "renameByName": {}
+            }
+          },
+          {
+            "id": "extractFields",
+            "options": {
+              "delimiter": ",",
+              "source": "labels"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "detected_level": true,
+                "filename": true,
+                "host": false,
+                "job": true,
+                "labelTypes": true,
+                "labels": true,
+                "pid": false,
+                "service_name": true
+              },
+              "includeByName": {},
+              "indexByName": {
+                "Time": 0,
+                "command": 1,
+                "filename": 3,
+                "host": 7,
+                "job": 4,
+                "labels": 2,
+                "pid": 5,
+                "user": 6
+              },
+              "renameByName": {}
+            }
+          }
+        ],
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "P8E80F9AEF21F6940"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "filterable": true,
+              "footer": {
+                "reducers": []
+              },
+              "hideFrom": {
+                "viz": false
+              },
+              "inspect": true,
+              "wrapHeaderText": true,
+              "wrapText": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Time"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 193
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "pid"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 252
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 13,
+          "w": 24,
+          "x": 0,
+          "y": 31
+        },
+        "id": 4,
+        "options": {
+          "cellHeight": "sm",
+          "enablePagination": true,
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": false,
+              "displayName": "ppid"
+            }
+          ]
+        },
+        "pluginVersion": "12.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "# happy cow",
+            "queryType": "range",
+            "refId": "A"
+          }
+        ],
+        "title": "System Processes",
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Line": true,
+                "Time": false,
+                "id": true,
+                "tsNs": true
+              },
+              "includeByName": {},
+              "indexByName": {
+                "Line": 2,
+                "Time": 0,
+                "id": 4,
+                "labels": 1,
+                "tsNs": 3
+              },
+              "renameByName": {}
+            }
+          },
+          {
+            "id": "extractFields",
+            "options": {
+              "delimiter": ",",
+              "source": "labels"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "command": true,
+                "detected_level": true,
+                "filename": true,
+                "job": true,
+                "labelTypes": true,
+                "labels": true,
+                "service_name": true
+              },
+              "includeByName": {},
+              "indexByName": {
+                "Time": 0,
+                "command": 2,
+                "filename": 10,
+                "host": 9,
+                "image": 4,
+                "job": 11,
+                "labels": 1,
+                "parent_command": 7,
+                "parent_image": 6,
+                "pid": 3,
+                "ppid": 5,
+                "user": 8
+              },
+              "renameByName": {}
+            }
+          }
+        ],
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "loki",
+          "uid": "P8E80F9AEF21F6940"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "filterable": true,
+              "footer": {
+                "reducers": []
+              },
+              "inspect": false,
+              "wrapHeaderText": true,
+              "wrapText": false
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "labels"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 532
+                }
+              ]
+            },
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Time"
+              },
+              "properties": [
+                {
+                  "id": "custom.width",
+                  "value": 200
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 13,
+          "w": 24,
+          "x": 0,
+          "y": 44
+        },
+        "id": 3,
+        "options": {
+          "cellHeight": "sm",
+          "enablePagination": true,
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": false,
+              "displayName": "pid"
+            }
+          ]
+        },
+        "pluginVersion": "12.4.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "loki",
+              "uid": "dfcv3ocn8l81sd"
+            },
+            "direction": "backward",
+            "editorMode": "code",
+            "expr": "# happy cow",
+            "queryType": "range",
+            "refId": "A"
+          }
+        ],
+        "title": "Network Connections",
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Line": true,
+                "Time": false,
+                "id": true,
+                "labels": false,
+                "tsNs": true
+              },
+              "includeByName": {},
+              "indexByName": {},
+              "renameByName": {}
+            }
+          },
+          {
+            "id": "extractFields",
+            "options": {
+              "delimiter": ",",
+              "format": "auto",
+              "source": "labels"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "detected_level": true,
+                "filename": true,
+                "initiated": true,
+                "job": true,
+                "labelTypes": true,
+                "labels": true,
+                "service_name": true
+              },
+              "includeByName": {},
+              "indexByName": {
+                "Time": 0,
+                "detected_level": 14,
+                "dst_ip": 2,
+                "dst_port": 3,
+                "host": 10,
+                "image": 7,
+                "initiated": 11,
+                "job": 12,
+                "labelTypes": 13,
+                "labels": 9,
+                "pid": 1,
+                "protocol": 6,
+                "service_name": 15,
+                "src_ip": 4,
+                "src_port": 5,
+                "user": 8
+              },
+              "renameByName": {}
+            }
+          }
+        ],
+        "type": "table"
+      }
+    ],
+    "preload": false,
+    "schemaVersion": 42,
+    "tags": [],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-5m",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "browser",
+    "title": "Sysmon",
+    "uid": "blkh87p",
+    "version": 24,
+    "weekStart": ""
+  }

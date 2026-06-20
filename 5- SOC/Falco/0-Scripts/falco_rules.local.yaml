@@ -1,0 +1,204 @@
+############################
+# LOCAL LIST DEFINITIONS
+############################
+
+- list: local_auth_account_files
+  items:
+    - /etc/passwd
+    - /etc/shadow
+
+- list: local_login_failure_files
+  items:
+    - /var/log/btmp
+    - /var/log/faillog
+
+- list: local_login_success_files
+  items:
+    - /var/log/wtmp
+    - /var/log/lastlog
+    - /var/run/utmp
+    - /var/log/utmp
+
+- list: local_shell_procs
+  items:
+    - bash
+    - sh
+    - zsh
+    - ksh
+    - dash
+    - ash
+    - fish
+
+- list: local_net_client_procs
+  items:
+    - nc
+    - ncat
+    - netcat
+    - socat
+    - python
+    - python3
+    - perl
+    - ruby
+    - php
+    - node
+    - lua
+    - curl
+    - wget
+
+############################
+# LOCAL MACROS
+############################
+
+- macro: local_open_read
+  condition: evt.type in (open, openat, openat2) and evt.is_open_read=true and fd.typechar='f'
+
+- macro: local_open_write
+  condition: evt.type in (open, openat, openat2, creat, truncate, ftruncate) and evt.is_open_write=true and fd.typechar='f'
+
+- macro: local_file_perm_change
+  condition: evt.type in (chmod, fchmod, fchmodat, chown, fchown, fchownat)
+
+- macro: local_file_delete_rename
+  condition: evt.type in (rename, renameat, renameat2, unlink, unlinkat)
+
+- macro: local_cron_file
+  condition: fd.name=/etc/crontab or fd.name startswith /etc/cron or fd.name startswith /var/spool/cron
+
+- macro: local_pam_file
+  condition: fd.name=/etc/pam.conf or fd.name startswith /etc/pam.d/
+
+- macro: local_ssh_auth_file
+  condition: fd.name=/etc/ssh/sshd_config or
+             fd.name startswith /etc/ssh/sshd_config.d/ or
+             fd.name=/etc/ssh/ssh_config or
+             fd.name startswith /etc/ssh/ssh_config.d/ or
+             fd.name contains "/.ssh/authorized_keys"
+
+- macro: local_bin_path
+  condition: fd.name=/bin or fd.name startswith /bin/
+
+- macro: local_remote_ip
+  condition: fd.rip != "127.0.0.1" and fd.rip != "::1" and fd.rip != "0.0.0.0"
+
+############################
+# RULES
+############################
+
+- rule: Sensitive auth file read
+  desc: Detect reads of /etc/passwd or /etc/shadow.
+  condition: local_open_read and fd.name in (local_auth_account_files)
+  output: Sensitive auth file read (user=%user.name command=%proc.cmdline file=%fd.name)
+  priority: WARNING
+  tags: [filesystem, authentication]
+
+- rule: Sensitive auth file modified
+  desc: Detect writes or metadata changes to auth account files.
+  condition: (local_open_write or local_file_perm_change or local_file_delete_rename) and fd.name in (local_auth_account_files)
+  output: Sensitive auth file modified (user=%user.name command=%proc.cmdline file=%fd.name evt=%evt.type)
+  priority: CRITICAL
+  tags: [filesystem, authentication]
+
+- rule: Cron file read
+  desc: Detect access to cron configuration files outside cron daemons.
+  condition: local_open_read and local_cron_file and not proc.name in (crond, cron)
+  output: Cron file read (user=%user.name command=%proc.cmdline file=%fd.name)
+  priority: NOTICE
+  tags: [filesystem, persistence]
+
+- rule: Cron file modified
+  desc: Detect changes to cron configuration files.
+  condition: (local_open_write or local_file_perm_change or local_file_delete_rename) and local_cron_file
+  output: Cron file modified (user=%user.name command=%proc.cmdline file=%fd.name evt=%evt.type)
+  priority: CRITICAL
+  tags: [filesystem, persistence]
+
+- rule: /bin binary executed
+  desc: Detect execution of binaries in /bin.
+  condition: evt.type=execve and proc.exepath startswith /bin/
+  output: /bin binary executed (user=%user.name command=%proc.cmdline exe=%proc.exepath)
+  priority: INFO
+  tags: [process, execution]
+
+- rule: /bin file modified
+  desc: Detect writes or metadata changes to files in /bin.
+  condition: (local_open_write or local_file_perm_change or local_file_delete_rename) and local_bin_path
+  output: /bin file modified (user=%user.name command=%proc.cmdline file=%fd.name evt=%evt.type)
+  priority: CRITICAL
+  tags: [filesystem, integrity]
+
+- rule: PAM configuration modified
+  desc: Detect changes to PAM configuration.
+  condition: (local_open_write or local_file_perm_change or local_file_delete_rename) and local_pam_file
+  output: PAM configuration modified (user=%user.name command=%proc.cmdline file=%fd.name evt=%evt.type)
+  priority: CRITICAL
+  tags: [filesystem, authentication]
+
+- rule: SSH public key auth file modified
+  desc: Detect changes to SSH public key authentication files.
+  condition: (local_open_write or local_file_perm_change or local_file_delete_rename) and local_ssh_auth_file
+  output: SSH auth file modified (user=%user.name command=%proc.cmdline file=%fd.name evt=%evt.type)
+  priority: CRITICAL
+  tags: [filesystem, authentication]
+
+- rule: SSH public key authentication
+  desc: Detect sshd reading authorized_keys.
+  condition: local_open_read and fd.name contains "/.ssh/authorized_keys" and proc.name=sshd
+  output: SSH public key authentication (user=%user.name command=%proc.cmdline file=%fd.name)
+  priority: NOTICE
+  tags: [authentication, ssh]
+
+- rule: Password authentication access
+  desc: Detect processes accessing /etc/shadow for authentication.
+  condition: local_open_read and fd.name=/etc/shadow and proc.name in (sshd, login, su, sudo)
+  output: Password authentication access (user=%user.name command=%proc.cmdline file=%fd.name)
+  priority: NOTICE
+  tags: [authentication]
+
+- rule: Login failure recorded
+  desc: Detect writes to login failure records.
+  condition: local_open_write and fd.name in (local_login_failure_files)
+  output: Login failure recorded (user=%user.name command=%proc.cmdline file=%fd.name)
+  priority: WARNING
+  tags: [authentication]
+
+- rule: Login success recorded
+  desc: Detect writes to login success records.
+  condition: local_open_write and fd.name in (local_login_success_files)
+  output: Login success recorded (user=%user.name command=%proc.cmdline file=%fd.name)
+  priority: INFO
+  tags: [authentication]
+
+- rule: SSH login attempt
+  desc: Detect inbound SSH connections.
+  condition: evt.type=accept and proc.name=sshd and fd.lport=22
+  output: SSH login attempt (user=%user.name command=%proc.cmdline client=%fd.cip:%fd.cport)
+  priority: NOTICE
+  tags: [network, authentication]
+
+- rule: Possible reverse shell outbound connection
+  desc: Detect shells connecting to remote hosts.
+  condition: evt.type=connect and proc.name in (local_shell_procs) and local_remote_ip
+  output: Possible reverse shell outbound connection (user=%user.name command=%proc.cmdline remote=%fd.rip:%fd.rport)
+  priority: CRITICAL
+  tags: [network, rce]
+
+- rule: Suspicious outbound connection
+  desc: Detect outbound connections from interpreters or network tools.
+  condition: evt.type=connect and proc.name in (local_net_client_procs) and local_remote_ip
+  output: Suspicious outbound connection (user=%user.name command=%proc.cmdline remote=%fd.rip:%fd.rport)
+  priority: WARNING
+  tags: [network, rce]
+
+- rule: Suspicious inbound connection
+  desc: Detect inbound connections to shells or interpreters.
+  condition: evt.type=accept and (proc.name in (local_shell_procs) or proc.name in (local_net_client_procs))
+  output: Suspicious inbound connection (user=%user.name command=%proc.cmdline client=%fd.cip:%fd.cport)
+  priority: CRITICAL
+  tags: [network, rce]
+
+- rule: Suspicious listener
+  desc: Detect shells or interpreters listening for inbound connections.
+  condition: evt.type=listen and (proc.name in (local_shell_procs) or proc.name in (local_net_client_procs))
+  output: Suspicious listener (user=%user.name command=%proc.cmdline fd=%fd.name)
+  priority: WARNING
+  tags: [network, rce]
