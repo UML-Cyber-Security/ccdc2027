@@ -1,4 +1,4 @@
-# Requires -RunAsAdministrator
+#Requires -RunAsAdministrator
 [CmdletBinding()]
 param (
     [string]$RootPath = "C:\IR_Backup"
@@ -31,15 +31,15 @@ Get-NetUDPEndpoint | Select-Object LocalAddress, LocalPort, OwningProcess, @{Nam
 $susConns = $tcp | Where-Object { $_.State -eq 'Established' -and $_.RemoteAddress -notmatch '^(127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|::1|fe80)' }
 if ($susConns) {
     "`n[!] SUSPICIOUS EXTERNAL TCP CONNECTIONS:" | Out-File $FlagFile -Append
-    $susConns \vert{} Select-Object RemoteAddress, RemotePort, OwningProcess \vert{} Out-String \vert{} Out-File$FlagFile -Append
+    $susConns | Select-Object RemoteAddress, RemotePort, OwningProcess | Out-String | Out-File $FlagFile -Append
 }
 
 # 2. Process Tree & Command Lines
 $procs = Get-CimInstance Win32_Process
-$procs \vert{} Select-Object ProcessId, ParentProcessId, Name, CommandLine, ExecutablePath \vert{} Export-Csv (Join-Path$VolDir "ProcessTree.csv") -NoTypeInformation
+$procs | Select-Object ProcessId, ParentProcessId, Name, CommandLine, ExecutablePath | Export-Csv (Join-Path $VolDir "ProcessTree.csv") -NoTypeInformation
 
-$susProcs =$procs | Where-Object { 
-    $_.CommandLine -match '-enc\vert{}-encodedcommand\vert{}downloadstring\vert{}bypass\vert{}-w hidden' -or$_.ExecutablePath -match '\\AppData\\|\\Temp\\|\\Users\\Public\\'
+$susProcs = $procs | Where-Object {
+    $_.CommandLine -match '-enc|-encodedcommand|downloadstring|bypass|-w hidden' -or $_.ExecutablePath -match '\\AppData\\|\\Temp\\|\\Users\\Public\\'
 }
 if ($susProcs) {
     "`n[!] SUSPICIOUS RUNNING PROCESSES / COMMAND LINES:" | Out-File $FlagFile -Append
@@ -57,19 +57,19 @@ netsh advfirewall export (Join-Path $NetDir "FirewallRules.wfw") | Out-Null
 $hostsEntries = Get-Content "$env:SystemRoot\System32\drivers\etc\hosts" | Where-Object { $_ -match '^\s*[^#\s]' }
 if ($hostsEntries) {
     "`n[!] ACTIVE ENTRIES IN HOSTS FILE:" | Out-File $FlagFile -Append
-    $hostsEntries \vert{} Out-String \vert{} Out-File$FlagFile -Append
+    $hostsEntries | Out-String | Out-File $FlagFile -Append
 }
 
 # 4. Console Histories
-$HistDir = Join-Path$BackupDir "PSHistories"
+$HistDir = Join-Path $BackupDir "PSHistories"
 New-Item -ItemType Directory -Path $HistDir -Force | Out-Null
 Get-ChildItem -Path "C:\Users" -Filter "ConsoleHost_history.txt" -Recurse -Force | ForEach-Object {
-    $uName =$_.FullName.Split('\')[2]
+    $uName = $_.FullName.Split('\')[2]
     Copy-Item $_.FullName -Destination (Join-Path $HistDir "${uName}_ConsoleHost_history.txt") -Force
 }
 
 # 5. Raw Registry Hives & Restorable Services
-$HiveDir = Join-Path$BackupDir "RawRegistryHives"
+$HiveDir = Join-Path $BackupDir "RawRegistryHives"
 New-Item -ItemType Directory -Path $HiveDir -Force | Out-Null
 reg save HKLM\SYSTEM (Join-Path $HiveDir "SYSTEM.hive") /y | Out-Null
 reg save HKLM\SOFTWARE (Join-Path $HiveDir "SOFTWARE.hive") /y | Out-Null
@@ -83,15 +83,16 @@ if (-not $IsDC) {
 reg export "HKLM\SYSTEM\CurrentControlSet\Services" (Join-Path $BackupDir "Services_Full_Restorable.reg") /y | Out-Null
 
 # 6. Persistence & WMI Check
-$PersistDir = Join-Path$BackupDir "Persistence"
+$PersistDir = Join-Path $BackupDir "Persistence"
 New-Item -ItemType Directory -Path $PersistDir -Force | Out-Null
 
-$wmiFilters = Get-CimInstance -Namespace root\subscription -ClassName __EventFilter
-$wmiConsumers = Get-CimInstance -Namespace root\subscription -ClassName __EventConsumer$wmiBindings = Get-CimInstance -Namespace root\subscription -ClassName __FilterToConsumerBinding
+$wmiFilters   = Get-CimInstance -Namespace root\subscription -ClassName __EventFilter
+$wmiConsumers = Get-CimInstance -Namespace root\subscription -ClassName __EventConsumer
+$wmiBindings  = Get-CimInstance -Namespace root\subscription -ClassName __FilterToConsumerBinding
 
-$wmiFilters \vert{} Export-Clixml (Join-Path$PersistDir "WMI_Filters.xml")
-$wmiConsumers \vert{} Export-Clixml (Join-Path$PersistDir "WMI_Consumers.xml")
-$wmiBindings \vert{} Export-Clixml (Join-Path$PersistDir "WMI_Bindings.xml")
+$wmiFilters   | Export-Clixml (Join-Path $PersistDir "WMI_Filters.xml")
+$wmiConsumers | Export-Clixml (Join-Path $PersistDir "WMI_Consumers.xml")
+$wmiBindings  | Export-Clixml (Join-Path $PersistDir "WMI_Bindings.xml")
 
 if ($wmiBindings) {
     "`n[!] ACTIVE WMI EVENT CONSUMER BINDINGS FOUND (HIGH RISK PERSISTENCE):" | Out-File $FlagFile -Append
@@ -105,7 +106,7 @@ $services | Select-Object Name, DisplayName, State, StartMode, StartName, PathNa
 $susServices = $services | Where-Object { $_.PathName -match '\\AppData\\|\\Temp\\|\\Users\\Public\\' }
 if ($susServices) {
     "`n[!] SUSPICIOUS SERVICE PATHS DETECTED:" | Out-File $FlagFile -Append
-    $susServices \vert{} Select-Object Name, PathName, StartName \vert{} Out-String \vert{} Out-File$FlagFile -Append
+    $susServices | Select-Object Name, PathName, StartName | Out-String | Out-File $FlagFile -Append
 }
 
 reg export "HKLM\Software\Microsoft\Windows\CurrentVersion\Run" (Join-Path $PersistDir "HKLM_Run.reg") /y | Out-Null
@@ -114,7 +115,7 @@ reg export "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Executi
 reg export "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows" (Join-Path $PersistDir "AppInit.reg") /y | Out-Null
 
 # 7. LSA Packages & Shares
-$LsaDir = Join-Path$BackupDir "LSA_And_Signing"
+$LsaDir = Join-Path $BackupDir "LSA_And_Signing"
 New-Item -ItemType Directory -Path $LsaDir -Force | Out-Null
 Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name "Notification Packages", "Authentication Packages", "Security Packages" | Out-File (Join-Path $LsaDir "LSA_Packages.txt")
 reg export "HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Shares" (Join-Path $LsaDir "Shares_Registry.reg") /y | Out-Null
@@ -122,7 +123,7 @@ reg export "HKLM\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" (Joi
 reg export "HKLM\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" (Join-Path $LsaDir "LanmanWorkstation_Params.reg") /y | Out-Null
 
 # 8. Event Logs
-$LogDir = Join-Path$BackupDir "EventLogs"
+$LogDir = Join-Path $BackupDir "EventLogs"
 New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
 wevtutil epl Security (Join-Path $LogDir "Security.evtx")
 wevtutil epl System (Join-Path $LogDir "System.evtx")
